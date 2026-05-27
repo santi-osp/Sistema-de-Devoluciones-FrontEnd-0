@@ -1,0 +1,53 @@
+:root {
+  color-scheme: light;
+  --dg-background: #f8fafc;
+  --dg-surface: #ffffff;
+  --dg-ink: #0f172a;
+  --dg-muted: #64748b;
+  --dg-border: #e2e8f0;
+  --dg-primary: #2563eb;
+  --dg-primary-strong: #1e40af;
+  --dg-danger: #dc2626;
+  --dg-success: #16a34a;
+  --dg-radius: 8px;
+  --dg-shadow: 0 18px 45px rgba(15, 23, 42, .08);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  background: var(--dg-background);
+  color: var(--dg-ink);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  letter-spacing: 0;
+}
+
+button:disabled {
+  opacity: .62;
+  cursor: not-allowed;
+  box-shadow: none;
+}
