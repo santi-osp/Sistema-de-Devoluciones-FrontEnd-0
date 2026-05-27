@@ -1,0 +1,62 @@
+<main class="login-shell">
+  <section class="login-card">
+    <aside class="story-panel">
+      <div class="brand">
+        <span>GP</span>
+        <strong>GarantiaPro</strong>
+      </div>
+      <div>
+        <p class="eyebrow">E-commerce operations</p>
+        <h1>Gestion de devoluciones y garantias con trazabilidad real.</h1>
+        <p class="copy">
+          Portal operativo para clientes, administradores, analistas y proveedores conectado a la API .NET.
+        </p>
+      </div>
+      <div class="trust-list">
+        <span>Seguimiento por estado</span>
+        <span>Evidencias en Supabase Storage</span>
+        <span>Reportes CSV/PDF</span>
+      </div>
+    </aside>
+
+    <section class="form-panel">
+      <div class="mobile-brand">
+        <span>GP</span>
+        <strong>GarantiaPro</strong>
+      </div>
+
+      <p class="eyebrow">Acceso seguro</p>
+      <h2>Iniciar sesion</h2>
+      <p class="hint">Usa las credenciales demo sembradas en el backend local.</p>
+
+      <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        <label>
+          Correo electronico
+          <input type="email" formControlName="email" placeholder="usuario@ecommerce.com" />
+        </label>
+
+        <label>
+          Contrasena
+          <span class="password-field">
+            <input
+              [type]="showPassword() ? 'text' : 'password'"
+              formControlName="password"
+              placeholder="********"
+            />
+            <button type="button" (click)="showPassword.set(!showPassword())">
+              {{ showPassword() ? 'Ocultar' : 'Ver' }}
+            </button>
+          </span>
+        </label>
+
+        <button class="submit" type="submit" [disabled]="loading()">
+          @if (loading()) {
+            Validando...
+          } @else {
+            Entrar al sistema
+          }
+        </button>
+      </form>
+    </section>
+  </section>
+</main>
