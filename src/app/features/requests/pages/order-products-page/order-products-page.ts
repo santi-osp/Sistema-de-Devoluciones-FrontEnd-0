@@ -62,9 +62,9 @@ import { OrdersApiService } from '../../services/orders-api.service';
   `,
   styles: [
     `.actions{display:flex;gap:.5rem;flex-wrap:wrap}
-     button{border:0;border-radius:8px;background:#0f172a;color:#fff;font-weight:900;padding:.55rem .8rem;cursor:pointer}
+     button{border:0;border-radius:14px;background:#0f172a;color:#fff;font-weight:900;padding:.65rem .9rem;cursor:pointer}
      .actions button:first-child{background:#2563eb}
-     .eligibility{margin-top:1rem;border:1px solid #fecaca;background:#fef2f2;color:#991b1b;border-radius:8px;padding:1rem}
+     .eligibility{margin-top:1.25rem;border:1px solid #fecaca;background:#fef2f2;color:#991b1b;border-radius:24px;padding:1.25rem;box-shadow:0 10px 28px rgba(15,23,42,.05)}
      .eligibility--ok{border-color:#bbf7d0;background:#f0fdf4;color:#166534}.eligibility p{margin:.4rem 0 .8rem}`
   ]
 })

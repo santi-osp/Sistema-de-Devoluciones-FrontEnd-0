@@ -95,12 +95,12 @@ import { ReportsApiService } from '../../services/reports-api.service';
     }
   `,
   styles: [
-    `.filters{display:grid;grid-template-columns:repeat(4,minmax(0,1fr)) auto auto;gap:.75rem;align-items:end;margin-bottom:1rem}
-     label{display:grid;gap:.35rem;color:#334155;font-weight:900;font-size:.86rem}input,select{border:1px solid #cbd5e1;border-radius:8px;background:#fff;padding:.65rem;color:#0f172a}
-     .metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(11rem,1fr));gap:1rem;margin-bottom:1rem}
-     .metrics article{border:1px solid #e2e8f0;border-radius:8px;background:#fff;padding:1rem;box-shadow:0 12px 34px rgba(15,23,42,.06)}
-     .metrics span,.metrics small{display:block;color:#64748b;font-weight:800}.metrics strong{display:block;margin:.4rem 0;color:#0f172a;font-size:1.8rem}
-     .actions{display:flex;gap:.5rem}button{border:0;border-radius:8px;background:#0f172a;color:#fff;font-weight:900;padding:.65rem .8rem;cursor:pointer}.secondary{background:#2563eb}
+    `.filters{display:grid;grid-template-columns:repeat(4,minmax(0,1fr)) auto auto;gap:.75rem;align-items:end;margin-bottom:1.5rem;border:1px solid #e2e8f0;border-radius:24px;background:#fff;padding:1rem;box-shadow:0 10px 28px rgba(15,23,42,.06)}
+     label{display:grid;gap:.4rem;color:#334155;font-weight:900;font-size:.86rem}input,select{border:1px solid #cbd5e1;border-radius:14px;background:#f8fafc;padding:.75rem;color:#0f172a}
+     .metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(11rem,1fr));gap:1.5rem;margin-bottom:1.5rem}
+     .metrics article{border:1px solid #e2e8f0;border-radius:24px;background:#fff;padding:1.5rem;box-shadow:0 12px 34px rgba(15,23,42,.06)}
+     .metrics span,.metrics small{display:block;color:#64748b;font-weight:900;text-transform:uppercase;font-size:11px;letter-spacing:.12em}.metrics strong{display:block;margin:.45rem 0;color:#0f172a;font-size:2rem;font-weight:900}
+     .actions{display:flex;gap:.5rem}button{border:0;border-radius:14px;background:#0f172a;color:#fff;font-weight:900;padding:.7rem .9rem;cursor:pointer}.secondary{background:#2563eb}
      @media(max-width:980px){.filters{grid-template-columns:1fr 1fr}.filters button{min-height:2.6rem}}`
   ]
 })

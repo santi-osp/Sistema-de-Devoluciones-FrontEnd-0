@@ -14,10 +14,10 @@ interface NavItem {
   selector: 'app-private-layout',
   imports: [RouterLink, RouterLinkActive, RouterOutlet],
   template: `
-    <div class="shell">
-      <aside class="sidebar" [class.sidebar--closed]="sidebarClosed()">
-        <div class="brand">
-          <div class="brand__mark">GP</div>
+    <div class="app-shell private-layout" [class.app-shell--admin]="isAdminArea()" [class.app-shell--provider]="isProviderArea()">
+      <aside class="app-shell__sidebar" [class.app-shell__sidebar--closed]="sidebarClosed()">
+        <div class="app-shell__brand">
+          <div class="app-shell__mark">GP</div>
           @if (!sidebarClosed()) {
             <div>
               <strong>GarantiaPro</strong>
@@ -26,8 +26,8 @@ interface NavItem {
           }
         </div>
 
-        <div class="user-card" [class.user-card--compact]="sidebarClosed()">
-          <div class="avatar">{{ initials() }}</div>
+        <div class="app-shell__user" [class.app-shell__user--compact]="sidebarClosed()">
+          <div class="app-shell__avatar">{{ initials() }}</div>
           @if (!sidebarClosed()) {
             <div>
               <strong>{{ user()?.name }}</strong>
@@ -36,7 +36,10 @@ interface NavItem {
           }
         </div>
 
-        <nav>
+        <nav class="app-shell__nav">
+          @if (!sidebarClosed()) {
+            <span class="app-shell__nav-label">Navegacion</span>
+          }
           @for (item of navItems(); track item.route) {
             <a [routerLink]="item.route" routerLinkActive="active" [title]="item.label">
               <span>{{ item.mark }}</span>
@@ -47,24 +50,33 @@ interface NavItem {
           }
         </nav>
 
-        <button class="logout" type="button" (click)="logout()" [title]="'Cerrar sesion'">
-          <span>×</span>
+        <button class="app-shell__logout" type="button" (click)="logout()" [title]="'Cerrar sesion'">
+          <span>X</span>
           @if (!sidebarClosed()) {
             <strong>Cerrar sesion</strong>
           }
         </button>
       </aside>
 
-      <section class="workspace">
-        <header class="topbar">
-          <button type="button" class="icon-button" (click)="sidebarClosed.set(!sidebarClosed())">☰</button>
+      <section class="app-shell__workspace">
+        <header class="app-shell__topbar">
+          <button type="button" class="app-shell__menu-button" (click)="sidebarClosed.set(!sidebarClosed())">Menu</button>
           <div>
             <span>Gestion de devoluciones y garantias</span>
             <strong>{{ portalLabel() }}</strong>
           </div>
+          <div class="app-shell__topbar-user">
+            <div>
+              <strong>{{ user()?.name }}</strong>
+              <span>{{ primaryRole() }}</span>
+            </div>
+            <div class="app-shell__avatar">{{ initials() }}</div>
+          </div>
         </header>
-        <main>
-          <router-outlet />
+        <main class="app-shell__content">
+          <div class="app-shell__content-inner">
+            <router-outlet />
+          </div>
         </main>
       </section>
     </div>
@@ -96,6 +108,11 @@ export class PrivateLayout {
       return 'Panel Operativo';
     }
     return 'Portal Cliente';
+  });
+  readonly isProviderArea = computed(() => this.primaryRole() === RoleNames.Proveedor);
+  readonly isAdminArea = computed(() => {
+    const role = this.primaryRole();
+    return role === RoleNames.Administrador || role === RoleNames.Analista;
   });
   readonly navItems = computed<NavItem[]>(() => {
     const roles = this.user()?.roles ?? [];

@@ -1,1 +1,7 @@
 <router-outlet />
+
+@if (notifications.notification(); as notification) {
+  <aside class="app-toast" [class.app-toast--error]="notification.type === 'error'" [class.app-toast--success]="notification.type === 'success'">
+    {{ notification.message }}
+  </aside>
+}

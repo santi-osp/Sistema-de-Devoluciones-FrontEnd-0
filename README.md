@@ -76,6 +76,33 @@ Proveedor:
 - Proveedor: casos asignados, detalle, garantia, dictamen, autorizaciones y recepcion.
 - Reportes: generacion y descarga CSV/PDF.
 
+## Referencia visual Blazor
+
+La paridad visual se tomo desde `Sistema-de-Devoluciones-FrontEnd/`.
+
+Archivos de referencia revisados:
+
+- `Components/Layout/DashboardLayout.razor`
+- `Components/Layout/MainLayout.razor`
+- `Components/Pages/MisPedidos.razor`
+- `Components/Pages/DetalleSolicitud.razor`
+- `Components/Pages/DashboardAdmin.razor`
+- `Components/Pages/ProveedorDashboard.razor`
+- `wwwroot/app.css`
+
+Estilos migrados a Angular:
+
+- Paleta `slate`, azul primario y verde proveedor.
+- Sidebar privado con tarjeta de usuario, marca GarantiaPro y navegacion por rol.
+- Cards amplias con bordes redondeados, tablas densas, badges tipo pill, formularios y estados vacios.
+- Layout privado con topbar sticky, contenedor ancho y espaciados tipo dashboard.
+
+Assets copiados:
+
+- `src/assets/images/blazor-favicon.png`
+
+El login Angular fue excluido intencionalmente de esta paridad visual para conservar su apariencia y funcionamiento previo.
+
 ## Notas de QA
 
 - Los usuarios demo provienen del seed del backend en Development.

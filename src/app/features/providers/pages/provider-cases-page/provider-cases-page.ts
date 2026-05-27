@@ -13,58 +13,71 @@ import { ProvidersApiService } from '../../services/providers-api.service';
   selector: 'app-provider-cases-page',
   imports: [DatePipe, PageHeader, DataTable, EmptyState, Loading, RouterLink, StatusBadge],
   template: `
-    <app-page-header eyebrow="Proveedor" title="Casos asignados" />
+    <section class="feature-page provider-page">
+      <app-page-header eyebrow="Proveedor" title="Casos asignados" />
 
-    @if (loading()) {
-      <app-loading label="Consultando casos asignados" />
-    } @else if (error()) {
-      <app-empty-state title="No fue posible cargar casos" [description]="error()!" />
-    } @else if (cases().length === 0) {
-      <app-empty-state
-        title="Sin casos asignados"
-        description="Los casos activos apareceran aqui cuando operaciones los asigne al proveedor autenticado."
-      />
-    } @else {
-      <app-data-table>
-        <table>
-          <thead>
-            <tr>
-              <th>Caso</th>
-              <th>Solicitud</th>
-              <th>Estado</th>
-              <th>Asignado</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (item of cases(); track item.id) {
+      <section class="provider-summary">
+        <div>
+          <span>Portal proveedor</span>
+          <h2>Evaluacion de garantias</h2>
+          <p>Gestiona casos asignados, dictamenes y recepciones desde la API real.</p>
+        </div>
+        <strong>{{ cases().length }}</strong>
+      </section>
+
+      @if (loading()) {
+        <app-loading label="Consultando casos asignados" />
+      } @else if (error()) {
+        <app-empty-state title="No fue posible cargar casos" [description]="error()!" />
+      } @else if (cases().length === 0) {
+        <app-empty-state
+          title="Sin casos asignados"
+          description="Los casos activos apareceran aqui cuando operaciones los asigne al proveedor autenticado."
+        />
+      } @else {
+        <app-data-table>
+          <table>
+            <thead>
               <tr>
-                <td>
-                  <strong>{{ shortId(item.id) }}</strong>
-                </td>
-                <td>{{ shortId(item.requestId) }}</td>
-                <td>
-                  <app-status-badge
-                    [label]="statusText(item.status)"
-                    [tone]="statusTone(item.status)"
-                  />
-                </td>
-                <td>{{ item.assignedAt | date: 'short' }}</td>
-                <td>
-                  <a class="table-action" [routerLink]="['/proveedor/casos', item.requestId]">
-                    Ver caso
-                  </a>
-                </td>
+                <th>Caso</th>
+                <th>Solicitud</th>
+                <th>Estado</th>
+                <th>Asignado</th>
+                <th></th>
               </tr>
-            }
-          </tbody>
-        </table>
-      </app-data-table>
-    }
+            </thead>
+            <tbody>
+              @for (item of cases(); track item.id) {
+                <tr>
+                  <td>
+                    <strong>{{ shortId(item.id) }}</strong>
+                  </td>
+                  <td>{{ shortId(item.requestId) }}</td>
+                  <td>
+                    <app-status-badge
+                      [label]="statusText(item.status)"
+                      [tone]="statusTone(item.status)"
+                    />
+                  </td>
+                  <td>{{ item.assignedAt | date: 'short' }}</td>
+                  <td>
+                    <a class="table-action" [routerLink]="['/proveedor/casos', item.requestId]">
+                      Ver caso
+                    </a>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </app-data-table>
+      }
+    </section>
   `,
   styles: [
-    `.table-action{display:inline-flex;align-items:center;justify-content:center;border-radius:8px;background:#0f172a;color:#fff;font-weight:900;text-decoration:none;padding:.55rem .8rem;white-space:nowrap}
-     strong{color:#0f172a}`
+    `.provider-summary{margin-bottom:1.5rem;border-radius:32px;background:#059669;color:#fff;padding:2rem;display:flex;align-items:center;justify-content:space-between;gap:1.5rem;box-shadow:0 24px 60px rgba(4,120,87,.18)}
+     .provider-summary span{display:block;color:rgba(255,255,255,.72);font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.16em}.provider-summary h2{margin:.45rem 0;color:#fff;font-size:2rem;font-weight:900}.provider-summary p{margin:0;color:rgba(255,255,255,.78);font-weight:800}.provider-summary strong{font-size:3rem;color:#fff}
+     .table-action{display:inline-flex;align-items:center;justify-content:center;border-radius:14px;background:#059669;color:#fff;font-weight:900;text-decoration:none;padding:.65rem .9rem;white-space:nowrap;box-shadow:0 12px 28px rgba(4,120,87,.16)}
+     strong{color:#0f172a}@media(max-width:760px){.provider-summary{align-items:flex-start;flex-direction:column}}`
   ]
 })
 export class ProviderCasesPage implements OnInit {

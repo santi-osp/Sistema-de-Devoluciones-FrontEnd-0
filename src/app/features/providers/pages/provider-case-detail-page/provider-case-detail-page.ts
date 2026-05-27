@@ -5,12 +5,11 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { ProviderCaseDetail } from '../../../../models/provider-case-detail.model';
 import { ResultadoDictamen } from '../../../../models/technical-report.model';
-import { TipoEvidencia } from '../../../../models/evidencia.model';
 import { EmptyState } from '../../../../shared/components/empty-state/empty-state';
+import { EvidenceGallery } from '../../../../shared/components/evidence-gallery/evidence-gallery';
 import { Loading } from '../../../../shared/components/loading/loading';
 import { PageHeader } from '../../../../shared/components/page-header/page-header';
 import { StatusBadge } from '../../../../shared/components/status-badge/status-badge';
-import { formatFileSize } from '../../../../shared/utils/format-file-size';
 import {
   requestTypeLabel,
   solutionLabel,
@@ -20,7 +19,7 @@ import { ProvidersApiService } from '../../services/providers-api.service';
 
 @Component({
   selector: 'app-provider-case-detail-page',
-  imports: [DatePipe, ReactiveFormsModule, RouterLink, PageHeader, Loading, EmptyState, StatusBadge],
+  imports: [DatePipe, ReactiveFormsModule, RouterLink, PageHeader, Loading, EmptyState, StatusBadge, EvidenceGallery],
   template: `
     <app-page-header eyebrow="Proveedor" title="Detalle del caso" />
 
@@ -128,33 +127,20 @@ import { ProvidersApiService } from '../../services/providers-api.service';
         @if (detail()!.request.evidence.length === 0) {
           <app-empty-state title="Sin evidencias" description="El cliente aun no ha adjuntado archivos." />
         } @else {
-          <div class="evidence-list">
-            @for (file of detail()!.request.evidence; track file.id) {
-              <article>
-                <div>
-                  <strong>{{ file.fileName }}</strong>
-                  <span>{{ evidenceType(file.type) }} · {{ fileSize(file.sizeInBytes) }}</span>
-                </div>
-                @if (file.url) {
-                  <a [href]="file.url" target="_blank" rel="noreferrer">Abrir evidencia</a>
-                }
-              </article>
-            }
-          </div>
+          <app-evidence-gallery [items]="detail()!.request.evidence" />
         }
       </section>
     }
   `,
   styles: [
-    `.toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}.toolbar a{color:#2563eb;font-weight:900;text-decoration:none}
-     .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem;margin-bottom:1rem}.panel{border:1px solid #e2e8f0;background:#fff;border-radius:8px;padding:1.25rem;box-shadow:0 14px 40px rgba(15,23,42,.06)}.panel--span{grid-column:1/-1}
+    `.toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem}.toolbar a{color:#2563eb;font-weight:900;text-decoration:none}
+     .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1.5rem;margin-bottom:1.5rem}.panel{border:1px solid #e2e8f0;background:#fff;border-radius:28px;padding:1.5rem;box-shadow:0 14px 40px rgba(15,23,42,.06);margin-bottom:1.5rem}.panel--span{grid-column:1/-1}
      .headline{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem}.headline span,.hint{color:#64748b;font-weight:800}.hint{margin:.8rem 0 0;line-height:1.5}
-     h2{margin:0 0 1rem;color:#0f172a;font-size:1.12rem}dl{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.85rem}dt{color:#64748b;font-weight:900;font-size:.78rem}dd{margin:.2rem 0 0;color:#0f172a;word-break:break-word}
-     .stack{display:grid;gap:.8rem}label{display:grid;gap:.35rem;color:#334155;font-weight:900;font-size:.86rem}.check{display:flex;gap:.5rem;align-items:center}
-     textarea,input,select{border:1px solid #cbd5e1;border-radius:8px;padding:.75rem;background:#f8fafc;color:#0f172a;width:100%;box-sizing:border-box}.split{display:grid;grid-template-columns:1fr 6rem;gap:.6rem}
-     button{border:0;border-radius:8px;background:#0f172a;color:#fff;font-weight:900;padding:.72rem .9rem;cursor:pointer}.actions{display:flex;gap:.6rem;flex-wrap:wrap}.approve{background:#16a34a}
-     .evidence-list{display:grid;gap:.75rem}.evidence-list article{display:flex;align-items:center;justify-content:space-between;gap:1rem;border:1px solid #eef2f7;border-radius:8px;background:#f8fafc;padding:.85rem}.evidence-list span{display:block;color:#64748b;margin-top:.25rem}.evidence-list a{color:#2563eb;font-weight:900;text-decoration:none}
-     @media(max-width:920px){.grid,dl{grid-template-columns:1fr}.evidence-list article{align-items:flex-start;flex-direction:column}}`
+     h2{margin:0 0 1rem;color:#0f172a;font-size:1.15rem;font-weight:900}dl{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem}dt{color:#64748b;font-weight:900;font-size:.78rem;text-transform:uppercase;letter-spacing:.08em}dd{margin:.2rem 0 0;color:#0f172a;word-break:break-word;font-weight:700}
+     .stack{display:grid;gap:.85rem}label{display:grid;gap:.4rem;color:#334155;font-weight:900;font-size:.86rem}.check{display:flex;gap:.5rem;align-items:center}
+     textarea,input,select{border:1px solid #cbd5e1;border-radius:14px;padding:.8rem;background:#f8fafc;color:#0f172a;width:100%;box-sizing:border-box}.split{display:grid;grid-template-columns:1fr 6rem;gap:.6rem}
+     button{border:0;border-radius:14px;background:#0f172a;color:#fff;font-weight:900;padding:.78rem 1rem;cursor:pointer}.actions{display:flex;gap:.6rem;flex-wrap:wrap}.approve{background:#16a34a}
+     @media(max-width:920px){.grid,dl{grid-template-columns:1fr}}`
   ]
 })
 export class ProviderCaseDetailPage implements OnInit {
@@ -167,7 +153,6 @@ export class ProviderCaseDetailPage implements OnInit {
   readonly loading = signal(true);
   readonly detail = signal<ProviderCaseDetail | null>(null);
   readonly dictamen = ResultadoDictamen;
-  readonly fileSize = formatFileSize;
   readonly requestType = requestTypeLabel;
   readonly requestStatus = statusLabel;
   readonly solution = solutionLabel;
@@ -312,20 +297,6 @@ export class ProviderCaseDetailPage implements OnInit {
     return 'neutral';
   }
 
-  evidenceType(type: TipoEvidencia | number): string {
-    switch (Number(type)) {
-      case TipoEvidencia.Imagen:
-        return 'Imagen';
-      case TipoEvidencia.Video:
-        return 'Video';
-      case TipoEvidencia.Pdf:
-        return 'PDF';
-      case TipoEvidencia.Comprobante:
-        return 'Comprobante';
-      default:
-        return 'Archivo';
-    }
-  }
 
   shortId(id?: string | null): string {
     return id ? id.slice(0, 8) : '-';

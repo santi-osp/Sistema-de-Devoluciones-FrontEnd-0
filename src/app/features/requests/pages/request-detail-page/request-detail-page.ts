@@ -1,6 +1,7 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { EmptyState } from '../../../../shared/components/empty-state/empty-state';
+import { EvidenceGallery } from '../../../../shared/components/evidence-gallery/evidence-gallery';
 import { FileUploader } from '../../../../shared/components/file-uploader/file-uploader';
 import { Loading } from '../../../../shared/components/loading/loading';
 import { PageHeader } from '../../../../shared/components/page-header/page-header';
@@ -21,7 +22,7 @@ import { RequestsApiService } from '../../services/requests-api.service';
 
 @Component({
   selector: 'app-request-detail-page',
-  imports: [PageHeader, StatusBadge, EmptyState, Loading, FileUploader],
+  imports: [PageHeader, StatusBadge, EmptyState, Loading, FileUploader, EvidenceGallery],
   template: `
     <app-page-header eyebrow="Cliente" title="Detalle de solicitud" />
 
@@ -80,28 +81,17 @@ import { RequestsApiService } from '../../services/requests-api.service';
         @if (evidence().length === 0) {
           <app-empty-state title="Sin evidencias" description="Aun no hay archivos asociados a esta solicitud." />
         } @else {
-          <div class="evidence-list">
-            @for (item of evidence(); track item.id) {
-              <article>
-                <strong>{{ item.fileName }}</strong>
-                <span>{{ fileSize(item.sizeInBytes) }}</span>
-                @if (item.url) {
-                  <a [href]="item.url" target="_blank" rel="noreferrer">Abrir</a>
-                }
-              </article>
-            }
-          </div>
+          <app-evidence-gallery [items]="evidence()" />
         }
       </section>
     }
   `,
   styles: [
-    `.detail-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:1rem;margin-bottom:1rem}.panel{border:1px solid #e2e8f0;background:#fff;border-radius:8px;padding:1.25rem;box-shadow:0 14px 40px rgba(15,23,42,.06)}
-     .panel-title{display:flex;align-items:center;justify-content:space-between;gap:1rem}h2{margin:0 0 1rem;color:#0f172a;font-size:1.15rem}dl{display:grid;gap:.75rem}dt{color:#64748b;font-weight:900;font-size:.78rem}dd{margin:.2rem 0 0;color:#0f172a}
-     button{border:0;border-radius:8px;background:#2563eb;color:#fff;font-weight:900;padding:.75rem 1rem;cursor:pointer}.file-name{color:#475569;font-weight:800}
+    `.detail-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:1.5rem;margin-bottom:1.5rem}.panel{border:1px solid #e2e8f0;background:#fff;border-radius:28px;padding:1.5rem;box-shadow:0 14px 40px rgba(15,23,42,.06);margin-bottom:1.5rem}
+     .panel-title{display:flex;align-items:center;justify-content:space-between;gap:1rem}h2{margin:0 0 1rem;color:#0f172a;font-size:1.2rem;font-weight:900}dl{display:grid;gap:.9rem}dt{color:#64748b;font-weight:900;font-size:.78rem;text-transform:uppercase;letter-spacing:.08em}dd{margin:.2rem 0 0;color:#0f172a;font-weight:700}
+     button{border:0;border-radius:14px;background:#2563eb;color:#fff;font-weight:900;padding:.8rem 1rem;cursor:pointer;box-shadow:0 12px 28px rgba(37,99,235,.18)}.file-name{color:#475569;font-weight:800}
      .timeline{display:grid;gap:.75rem;margin:0;padding-left:1.25rem}.timeline li{padding-left:.4rem}.timeline span,.timeline small{display:block;color:#64748b;margin-top:.2rem}
-     .evidence-list{display:grid;gap:.75rem}.evidence-list article{display:flex;align-items:center;justify-content:space-between;gap:1rem;border:1px solid #eef2f7;border-radius:8px;padding:.85rem;background:#f8fafc}
-     a{color:#2563eb;font-weight:900}@media(max-width:860px){.detail-grid{grid-template-columns:1fr}.evidence-list article{display:grid}}`
+     a{color:#2563eb;font-weight:900}@media(max-width:860px){.detail-grid{grid-template-columns:1fr}}`
   ]
 })
 export class RequestDetailPage implements OnInit {

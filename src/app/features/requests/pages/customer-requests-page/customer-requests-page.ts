@@ -45,7 +45,10 @@ import { requestTypeLabel, statusLabel } from '../../../../shared/utils/request-
         </table>
       </app-data-table>
     }
-  `
+  `,
+  styles: [
+    `a{color:#2563eb;font-weight:900;text-decoration:none}a:hover{text-decoration:underline}`
+  ]
 })
 export class CustomerRequestsPage implements OnInit {
   private readonly requestsApi = inject(RequestsApiService);

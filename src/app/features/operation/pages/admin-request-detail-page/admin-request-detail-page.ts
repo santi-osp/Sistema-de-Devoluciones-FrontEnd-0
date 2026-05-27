@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { EmptyState } from '../../../../shared/components/empty-state/empty-state';
+import { EvidenceGallery } from '../../../../shared/components/evidence-gallery/evidence-gallery';
 import { Loading } from '../../../../shared/components/loading/loading';
 import { PageHeader } from '../../../../shared/components/page-header/page-header';
 import { StatusBadge } from '../../../../shared/components/status-badge/status-badge';
@@ -13,7 +14,7 @@ import { OperationApiService } from '../../services/operation-api.service';
 
 @Component({
   selector: 'app-admin-request-detail-page',
-  imports: [PageHeader, StatusBadge, EmptyState, Loading, ReactiveFormsModule],
+  imports: [PageHeader, StatusBadge, EmptyState, Loading, ReactiveFormsModule, EvidenceGallery],
   template: `
     <app-page-header eyebrow="Operacion" title="Detalle operativo" />
 
@@ -95,27 +96,17 @@ import { OperationApiService } from '../../services/operation-api.service';
         @if (detail()!.evidence.length === 0) {
           <app-empty-state title="Sin evidencias" description="La solicitud no tiene archivos adjuntos." />
         } @else {
-          <div class="list">
-            @for (file of detail()!.evidence; track file.id) {
-              <article>
-                <strong>{{ file.fileName }}</strong>
-                <span>{{ fileSize(file.sizeInBytes) }}</span>
-                @if (file.url) {
-                  <a [href]="file.url" target="_blank" rel="noreferrer">Abrir</a>
-                }
-              </article>
-            }
-          </div>
+          <app-evidence-gallery [items]="detail()!.evidence" />
         }
       </section>
     }
   `,
   styles: [
-    `.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem;margin-bottom:1rem}.panel{border:1px solid #e2e8f0;background:#fff;border-radius:8px;padding:1.25rem;box-shadow:0 14px 40px rgba(15,23,42,.06)}
-     .headline{display:flex;align-items:center;justify-content:space-between;gap:1rem}h2{margin:0 0 1rem;color:#0f172a;font-size:1.12rem}dl{display:grid;gap:.7rem}dt{color:#64748b;font-weight:900;font-size:.78rem}dd{margin:.2rem 0 0;color:#0f172a;word-break:break-word}
-     .stack{display:grid;gap:.8rem}textarea,input{border:1px solid #cbd5e1;border-radius:8px;padding:.75rem;background:#f8fafc;color:#0f172a}.check{display:flex;gap:.5rem;align-items:center;color:#334155;font-weight:800}
-     button{border:0;border-radius:8px;background:#2563eb;color:#fff;font-weight:900;padding:.7rem .9rem;cursor:pointer}.actions{display:flex;gap:.6rem}.approve{background:#16a34a}.reject{background:#dc2626}
-     .list{display:grid;gap:.75rem}.list article{border:1px solid #eef2f7;border-radius:8px;background:#f8fafc;padding:.85rem}.list p{margin:.4rem 0;color:#334155}.list span{color:#64748b;font-size:.88rem}a{color:#2563eb;font-weight:900}@media(max-width:860px){.grid{grid-template-columns:1fr}}`
+    `.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1.5rem;margin-bottom:1.5rem}.panel{border:1px solid #e2e8f0;background:#fff;border-radius:28px;padding:1.5rem;box-shadow:0 14px 40px rgba(15,23,42,.06);margin-bottom:1.5rem}
+     .headline{display:flex;align-items:center;justify-content:space-between;gap:1rem}h2{margin:0 0 1rem;color:#0f172a;font-size:1.15rem;font-weight:900}dl{display:grid;gap:.8rem}dt{color:#64748b;font-weight:900;font-size:.78rem;text-transform:uppercase;letter-spacing:.08em}dd{margin:.2rem 0 0;color:#0f172a;word-break:break-word;font-weight:700}
+     .stack{display:grid;gap:.85rem}textarea,input{border:1px solid #cbd5e1;border-radius:14px;padding:.8rem;background:#f8fafc;color:#0f172a}.check{display:flex;gap:.5rem;align-items:center;color:#334155;font-weight:800}
+     button{border:0;border-radius:14px;background:#2563eb;color:#fff;font-weight:900;padding:.75rem 1rem;cursor:pointer}.actions{display:flex;gap:.6rem}.approve{background:#16a34a}.reject{background:#dc2626}
+     .list{display:grid;gap:.75rem}.list article{border:1px solid #eef2f7;border-radius:18px;background:#f8fafc;padding:1rem}.list p{margin:.4rem 0;color:#334155}.list span{color:#64748b;font-size:.88rem}a{color:#2563eb;font-weight:900}@media(max-width:860px){.grid{grid-template-columns:1fr}}`
   ]
 })
 export class AdminRequestDetailPage implements OnInit {

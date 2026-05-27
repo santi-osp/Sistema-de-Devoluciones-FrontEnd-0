@@ -9,7 +9,8 @@ import { Component, output } from '@angular/core';
     </label>
   `,
   styles: [
-    `.uploader{display:grid;place-items:center;min-height:9rem;border:1px dashed #93c5fd;border-radius:8px;background:#eff6ff;color:#1d4ed8;font-weight:900;cursor:pointer}
+    `.uploader{display:grid;place-items:center;min-height:10rem;border:2px dashed #93c5fd;border-radius:24px;background:#eff6ff;color:#1d4ed8;font-weight:900;cursor:pointer;transition:border-color 150ms ease,background 150ms ease}
+     .uploader:hover{border-color:#2563eb;background:#dbeafe}
      input{display:none}`
   ]
 })
