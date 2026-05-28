@@ -57,6 +57,12 @@ export class OperationApiService {
       .pipe(map((response) => response.data ?? { requested: false }));
   }
 
+  sendToReview(requestId: string): Observable<{ requestId: string; providerId: string; requestStatus: EstadoSolicitud; assignmentStatus: number } | null> {
+    return this.http
+      .post<ApiResponse<{ requestId: string; providerId: string; requestStatus: EstadoSolicitud; assignmentStatus: number }>>(`${this.baseUrl}/requests/${requestId}/send-to-review`, {})
+      .pipe(map((response) => response.data ?? null));
+  }
+
   approveRequest(requestId: string, dto: DecisionRequest): Observable<DecisionResult> {
     return this.decide(requestId, 'approve', dto);
   }

@@ -1,3 +1,4 @@
+import { DatePipe } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
@@ -7,14 +8,15 @@ import { Loading } from '../../../../shared/components/loading/loading';
 import { PageHeader } from '../../../../shared/components/page-header/page-header';
 import { StatusBadge } from '../../../../shared/components/status-badge/status-badge';
 import { OperationRequestDetail } from '../../../../models/operation-request-detail.model';
+import { EstadoSolicitud } from '../../../../models/solicitud.model';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { formatFileSize } from '../../../../shared/utils/format-file-size';
-import { requestTypeLabel, statusLabel } from '../../../../shared/utils/request-labels';
+import { requestTypeLabel, solutionLabel, statusLabel } from '../../../../shared/utils/request-labels';
 import { OperationApiService } from '../../services/operation-api.service';
 
 @Component({
   selector: 'app-admin-request-detail-page',
-  imports: [PageHeader, StatusBadge, EmptyState, Loading, ReactiveFormsModule, EvidenceGallery],
+  imports: [DatePipe, PageHeader, StatusBadge, EmptyState, Loading, ReactiveFormsModule, EvidenceGallery],
   template: `
     <app-page-header eyebrow="Operacion" title="Detalle operativo" />
 
@@ -33,6 +35,7 @@ import { OperationApiService } from '../../services/operation-api.service';
             <div><dt>Motivo</dt><dd>{{ detail()!.reason }}</dd></div>
             <div><dt>Descripcion</dt><dd>{{ detail()!.description }}</dd></div>
             <div><dt>Cantidad</dt><dd>{{ detail()!.quantity }}</dd></div>
+            <div><dt>Solucion solicitada</dt><dd>{{ solutionText(detail()!.preferredSolution) }}</dd></div>
             <div><dt>Cliente</dt><dd>{{ detail()!.customerId }}</dd></div>
             <div><dt>Pedido</dt><dd>{{ detail()!.orderId }}</dd></div>
             <div><dt>Producto</dt><dd>{{ detail()!.productId }}</dd></div>
@@ -41,15 +44,88 @@ import { OperationApiService } from '../../services/operation-api.service';
 
         <article class="panel">
           <h2>Decision operativa</h2>
-          <form [formGroup]="decisionForm" class="stack">
-            <textarea formControlName="reason" rows="4" placeholder="Motivo obligatorio"></textarea>
-            <div class="actions">
-              <button type="button" class="approve" (click)="decide(true)">Aprobar</button>
+          @if (canSendToReview()) {
+            <div [formGroup]="decisionForm" class="stack">
+              <button type="button" class="review" (click)="sendToReview()">Enviar a revision</button>
+              <textarea formControlName="reason" rows="3" placeholder="Motivo para rechazar"></textarea>
               <button type="button" class="reject" (click)="decide(false)">Rechazar</button>
             </div>
-          </form>
+          } @else if (isWaitingProvider()) {
+            <app-empty-state title="En revision del proveedor" description="La solicitud esta asignada y pendiente de respuesta del proveedor." />
+          } @else if (canDecide()) {
+            <form [formGroup]="decisionForm" class="stack">
+              <textarea formControlName="reason" rows="4" placeholder="Motivo obligatorio"></textarea>
+              <div class="actions">
+                <button type="button" class="approve" (click)="decide(true)">Aprobar</button>
+                <button type="button" class="reject" (click)="decide(false)">Rechazar</button>
+              </div>
+            </form>
+          } @else {
+            <app-empty-state title="Sin acciones disponibles" description="La solicitud ya tiene una decision registrada." />
+          }
         </article>
       </section>
+
+      @if (detail()!.providerReview; as review) {
+        <section class="panel provider-review">
+          <div class="headline">
+            <h2>Revision proveedor</h2>
+            @if (review.availability.hasConflict) {
+              <app-status-badge label="Con conflicto" tone="warn" />
+            } @else if (review.availability.evaluated) {
+              <app-status-badge label="Evaluada" tone="ok" />
+            } @else {
+              <app-status-badge label="Pendiente" />
+            }
+          </div>
+
+          <div class="review-grid">
+            @if (review.assignment) {
+              <article>
+                <span>Proveedor asignado</span>
+                <strong>{{ review.assignment.providerId }}</strong>
+                <small>{{ providerStatusText(review.assignment.status) }} - {{ review.assignment.assignedAt | date: 'short' }}</small>
+              </article>
+            }
+
+            @if (review.warrantyValidation) {
+              <article>
+                <span>Garantia</span>
+                <strong>{{ review.warrantyValidation.isWarrantyValid ? 'Vigente' : 'No vigente' }}</strong>
+                <small>{{ review.warrantyValidation.reason || 'Sin observaciones' }}</small>
+              </article>
+            }
+
+            @if (review.technicalReport) {
+              <article>
+                <span>Dictamen</span>
+                <strong>{{ dictamenText(review.technicalReport.result) }}</strong>
+                <small>{{ review.technicalReport.observations || review.technicalReport.technicalReason || 'Sin observaciones' }}</small>
+              </article>
+            }
+
+            <article>
+              <span>Disponibilidad</span>
+              <strong>{{ availabilityText(review.availability.hasAvailability) }}</strong>
+              <small>{{ solutionText(review.availability.preferredSolution) }}</small>
+            </article>
+          </div>
+
+          @if (review.availability.conflictReason) {
+            <div class="resolution">
+              <strong>Conflicto detectado</strong>
+              <p>{{ review.availability.conflictReason }}</p>
+            </div>
+          }
+
+          @if (review.availability.conflictResolution) {
+            <div class="resolution">
+              <strong>Resolucion de conflicto</strong>
+              <p>{{ review.availability.conflictResolution }}</p>
+            </div>
+          }
+        </section>
+      }
 
       <section class="grid">
         <article class="panel">
@@ -66,11 +142,15 @@ import { OperationApiService } from '../../services/operation-api.service';
 
         <article class="panel">
           <h2>Solicitar informacion</h2>
-          <form [formGroup]="infoForm" class="stack" (ngSubmit)="requestInformation()">
-            <textarea formControlName="message" rows="4" placeholder="Mensaje para el cliente"></textarea>
-            <input type="datetime-local" formControlName="deadline" />
-            <button type="submit">Solicitar informacion</button>
-          </form>
+          @if (canRequestInformation()) {
+            <form [formGroup]="infoForm" class="stack" (ngSubmit)="requestInformation()">
+              <textarea formControlName="message" rows="4" placeholder="Mensaje para el cliente"></textarea>
+              <input type="datetime-local" formControlName="deadline" />
+              <button type="submit">Solicitar informacion</button>
+            </form>
+          } @else {
+            <app-empty-state title="No disponible" description="La solicitud no permite solicitar informacion en este estado." />
+          }
         </article>
       </section>
 
@@ -105,8 +185,8 @@ import { OperationApiService } from '../../services/operation-api.service';
     `.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1.5rem;margin-bottom:1.5rem}.panel{border:1px solid #e2e8f0;background:#fff;border-radius:28px;padding:1.5rem;box-shadow:0 14px 40px rgba(15,23,42,.06);margin-bottom:1.5rem}
      .headline{display:flex;align-items:center;justify-content:space-between;gap:1rem}h2{margin:0 0 1rem;color:#0f172a;font-size:1.15rem;font-weight:900}dl{display:grid;gap:.8rem}dt{color:#64748b;font-weight:900;font-size:.78rem;text-transform:uppercase;letter-spacing:.08em}dd{margin:.2rem 0 0;color:#0f172a;word-break:break-word;font-weight:700}
      .stack{display:grid;gap:.85rem}textarea,input{border:1px solid #cbd5e1;border-radius:14px;padding:.8rem;background:#f8fafc;color:#0f172a}.check{display:flex;gap:.5rem;align-items:center;color:#334155;font-weight:800}
-     button{border:0;border-radius:14px;background:#2563eb;color:#fff;font-weight:900;padding:.75rem 1rem;cursor:pointer}.actions{display:flex;gap:.6rem}.approve{background:#16a34a}.reject{background:#dc2626}
-     .list{display:grid;gap:.75rem}.list article{border:1px solid #eef2f7;border-radius:18px;background:#f8fafc;padding:1rem}.list p{margin:.4rem 0;color:#334155}.list span{color:#64748b;font-size:.88rem}a{color:#2563eb;font-weight:900}@media(max-width:860px){.grid{grid-template-columns:1fr}}`
+     button{border:0;border-radius:14px;background:#2563eb;color:#fff;font-weight:900;padding:.75rem 1rem;cursor:pointer}.actions{display:flex;gap:.6rem}.approve{background:#16a34a}.reject{background:#dc2626}.review{background:#0f172a}
+     .list{display:grid;gap:.75rem}.list article{border:1px solid #eef2f7;border-radius:18px;background:#f8fafc;padding:1rem}.list p{margin:.4rem 0;color:#334155}.list span{color:#64748b;font-size:.88rem}.review-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.75rem}.review-grid article{border:1px solid #e2e8f0;border-radius:16px;background:#f8fafc;padding:1rem;display:grid;gap:.35rem}.review-grid span{color:#64748b;font-weight:900;font-size:.75rem;text-transform:uppercase}.review-grid strong{color:#0f172a;word-break:break-word}.review-grid small{color:#475569;line-height:1.4}.resolution{border-left:4px solid #2563eb;background:#eff6ff;border-radius:14px;padding:1rem;margin-top:1rem}.resolution strong{color:#0f172a}.resolution p{margin:.35rem 0 0;color:#334155;line-height:1.5}a{color:#2563eb;font-weight:900}@media(max-width:860px){.grid,.review-grid{grid-template-columns:1fr}}`
   ]
 })
 export class AdminRequestDetailPage implements OnInit {
@@ -120,6 +200,7 @@ export class AdminRequestDetailPage implements OnInit {
   readonly detail = signal<OperationRequestDetail | null>(null);
   readonly typeLabel = requestTypeLabel;
   readonly statusText = statusLabel;
+  readonly solutionText = solutionLabel;
   readonly fileSize = formatFileSize;
   readonly commentForm = this.fb.nonNullable.group({
     text: ['', [Validators.required, Validators.maxLength(1000)]],
@@ -167,6 +248,39 @@ export class AdminRequestDetailPage implements OnInit {
       });
   }
 
+  canSendToReview(): boolean {
+    const status = this.detail()?.status;
+    return status === EstadoSolicitud.Creada || status === EstadoSolicitud.PendienteInformacion;
+  }
+
+  canDecide(): boolean {
+    const status = this.detail()?.status;
+    return status === EstadoSolicitud.PendienteDecisionFinalAdmin || status === EstadoSolicitud.EnRevision;
+  }
+
+  canRequestInformation(): boolean {
+    const status = this.detail()?.status;
+    return (
+      status === EstadoSolicitud.Creada ||
+      status === EstadoSolicitud.EnRevision
+    );
+  }
+
+  isWaitingProvider(): boolean {
+    return this.detail()?.status === EstadoSolicitud.EnRevisionProveedor;
+  }
+
+  sendToReview(): void {
+    if (!window.confirm('Enviar esta solicitud a revision?')) {
+      return;
+    }
+
+    this.operationApi.sendToReview(this.requestId).subscribe(() => {
+      this.notifications.show('Solicitud enviada a revision.', 'success');
+      this.reload();
+    });
+  }
+
   decide(approved: boolean): void {
     if (this.decisionForm.invalid) {
       this.decisionForm.markAllAsTouched();
@@ -197,5 +311,43 @@ export class AdminRequestDetailPage implements OnInit {
       error: () => this.loading.set(false),
       complete: () => this.loading.set(false)
     });
+  }
+
+  providerStatusText(status: number): string {
+    switch (Number(status)) {
+      case 2:
+        return 'En evaluacion';
+      case 3:
+        return 'Informacion solicitada';
+      case 4:
+        return 'Dictaminado';
+      case 5:
+        return 'Cerrado';
+      default:
+        return 'Asignado';
+    }
+  }
+
+  dictamenText(result: number): string {
+    switch (Number(result)) {
+      case 2:
+        return 'No da visto bueno';
+      case 3:
+        return 'Requiere revision adicional';
+      default:
+        return 'Da visto bueno';
+    }
+  }
+
+  availabilityText(value?: boolean | null): string {
+    if (value === true) {
+      return 'Disponible';
+    }
+
+    if (value === false) {
+      return 'No disponible';
+    }
+
+    return 'Sin evaluar';
   }
 }

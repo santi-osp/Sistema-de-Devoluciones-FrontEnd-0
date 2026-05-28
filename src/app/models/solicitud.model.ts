@@ -18,7 +18,9 @@ export enum EstadoSolicitud {
   PendienteInformacion = 3,
   Aprobada = 4,
   Rechazada = 5,
-  Cerrada = 6
+  Cerrada = 6,
+  EnRevisionProveedor = 7,
+  PendienteDecisionFinalAdmin = 8
 }
 
 export interface Solicitud {

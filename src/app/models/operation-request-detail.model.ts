@@ -1,6 +1,7 @@
 import { Evidencia } from './evidencia.model';
 import { InternalComment } from './internal-comment.model';
-import { EstadoSolicitud, TipoSolicitud } from './solicitud.model';
+import { ProviderReview } from './provider-review.model';
+import { EstadoSolicitud, PreferenciaSolucion, TipoSolicitud } from './solicitud.model';
 
 export interface OperationRequestDetail {
   id: string;
@@ -12,6 +13,8 @@ export interface OperationRequestDetail {
   reason: string;
   description: string;
   quantity: number;
+  preferredSolution: PreferenciaSolucion;
   evidence: Evidencia[];
   comments: InternalComment[];
+  providerReview?: ProviderReview | null;
 }

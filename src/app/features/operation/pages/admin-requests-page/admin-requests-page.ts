@@ -20,7 +20,8 @@ import { OperationApiService } from '../../services/operation-api.service';
       <section class="filters">
         <button type="button" (click)="load(null)" [class.active]="selectedStatus() === null">Todas</button>
         <button type="button" (click)="load(estados.Creada)" [class.active]="selectedStatus() === estados.Creada">Creadas</button>
-        <button type="button" (click)="load(estados.EnRevision)" [class.active]="selectedStatus() === estados.EnRevision">En revision</button>
+        <button type="button" (click)="load(estados.EnRevisionProveedor)" [class.active]="selectedStatus() === estados.EnRevisionProveedor">Proveedor</button>
+        <button type="button" (click)="load(estados.PendienteDecisionFinalAdmin)" [class.active]="selectedStatus() === estados.PendienteDecisionFinalAdmin">Decision final</button>
         <button type="button" (click)="load(estados.PendienteInformacion)" [class.active]="selectedStatus() === estados.PendienteInformacion">Pendiente info</button>
       </section>
 

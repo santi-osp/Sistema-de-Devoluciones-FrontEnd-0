@@ -31,7 +31,9 @@ import { ReportsApiService } from '../../services/reports-api.service';
         <select formControlName="status">
           <option [ngValue]="null">Todos</option>
           <option [ngValue]="estados.Creada">Creada</option>
-          <option [ngValue]="estados.EnRevision">En revision</option>
+          <option [ngValue]="estados.EnRevision">En revision operativa</option>
+          <option [ngValue]="estados.EnRevisionProveedor">En revision proveedor</option>
+          <option [ngValue]="estados.PendienteDecisionFinalAdmin">Pendiente decision final</option>
           <option [ngValue]="estados.PendienteInformacion">Pendiente informacion</option>
           <option [ngValue]="estados.Aprobada">Aprobada</option>
           <option [ngValue]="estados.Rechazada">Rechazada</option>

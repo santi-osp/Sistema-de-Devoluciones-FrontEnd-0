@@ -20,7 +20,7 @@ export function solutionLabel(value: PreferenciaSolucion | number): string {
 export function statusLabel(status: EstadoSolicitud | number): string {
   switch (Number(status)) {
     case EstadoSolicitud.EnRevision:
-      return 'En revision';
+      return 'En revision operativa';
     case EstadoSolicitud.PendienteInformacion:
       return 'Pendiente informacion';
     case EstadoSolicitud.Aprobada:
@@ -29,6 +29,10 @@ export function statusLabel(status: EstadoSolicitud | number): string {
       return 'Rechazada';
     case EstadoSolicitud.Cerrada:
       return 'Cerrada';
+    case EstadoSolicitud.EnRevisionProveedor:
+      return 'En revision proveedor';
+    case EstadoSolicitud.PendienteDecisionFinalAdmin:
+      return 'Pendiente decision final';
     default:
       return 'Creada';
   }

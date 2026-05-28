@@ -58,45 +58,69 @@ import { ProvidersApiService } from '../../services/providers-api.service';
 
         <article class="panel">
           <h2>Validacion de garantia</h2>
-          <form [formGroup]="warrantyForm" class="stack" (ngSubmit)="validateWarranty()">
-            <label class="check">
-              <input type="checkbox" formControlName="isWarrantyValid" />
-              Garantia vigente
-            </label>
-            <textarea
-              formControlName="reason"
-              rows="4"
-              placeholder="Motivo si la garantia no esta vigente"
-            ></textarea>
-            <button type="submit">Registrar validacion</button>
-          </form>
+          @if (detail()!.review.warrantyValidation) {
+            <div class="summary-box">
+              <strong>{{ detail()!.review.warrantyValidation!.isWarrantyValid ? 'Garantia vigente' : 'Garantia no vigente' }}</strong>
+              <p>{{ detail()!.review.warrantyValidation!.reason || 'Sin observaciones' }}</p>
+              <small>{{ detail()!.review.warrantyValidation!.validatedAt | date: 'short' }}</small>
+            </div>
+          } @else {
+            <form [formGroup]="warrantyForm" class="stack" (ngSubmit)="validateWarranty()">
+              <label class="check">
+                <input type="checkbox" formControlName="isWarrantyValid" />
+                Garantia vigente
+              </label>
+              <textarea
+                formControlName="reason"
+                rows="4"
+                placeholder="Motivo si la garantia no esta vigente"
+              ></textarea>
+              <button type="submit">Registrar validacion</button>
+            </form>
+          }
         </article>
 
         <article class="panel">
           <h2>Dictamen tecnico</h2>
-          <form [formGroup]="reportForm" class="stack" (ngSubmit)="registerTechnicalReport()">
-            <label>
-              Resultado
-              <select formControlName="result">
-                <option [ngValue]="dictamen.Procede">Procede</option>
-                <option [ngValue]="dictamen.NoProcede">No procede</option>
-                <option [ngValue]="dictamen.RequiereRevisionAdicional">
-                  Requiere revision adicional
-                </option>
-              </select>
-            </label>
-            <textarea
-              formControlName="technicalReason"
-              rows="3"
-              placeholder="Motivo tecnico obligatorio si no procede"
-            ></textarea>
-            <textarea formControlName="observations" rows="3" placeholder="Observaciones"></textarea>
-            <button type="submit">Registrar dictamen</button>
-          </form>
+          @if (detail()!.review.technicalReport) {
+            <div class="summary-box">
+              <strong>{{ dictamenText(detail()!.review.technicalReport!.result) }}</strong>
+              <p>{{ detail()!.review.technicalReport!.technicalReason || 'Sin motivo tecnico' }}</p>
+              <p>{{ detail()!.review.technicalReport!.observations || 'Sin observaciones' }}</p>
+              <small>{{ detail()!.review.technicalReport!.issuedAt | date: 'short' }}</small>
+            </div>
+          } @else {
+            <form [formGroup]="reportForm" class="stack" (ngSubmit)="registerTechnicalReport()">
+              <label>
+                Resultado
+                <select formControlName="result">
+                  <option [ngValue]="dictamen.Procede">Da visto bueno</option>
+                  <option [ngValue]="dictamen.NoProcede">No da visto bueno</option>
+                  <option [ngValue]="dictamen.RequiereRevisionAdicional">
+                    Requiere revision adicional
+                  </option>
+                </select>
+              </label>
+              <textarea
+                formControlName="technicalReason"
+                rows="3"
+                placeholder="Motivo tecnico obligatorio si no procede"
+              ></textarea>
+              <textarea formControlName="observations" rows="3" placeholder="Observaciones"></textarea>
+              <button type="submit">Registrar dictamen</button>
+            </form>
+          }
         </article>
 
         <article class="panel">
           <h2>Autorizaciones</h2>
+          <div class="summary-box">
+            <strong>{{ availabilityText(detail()!.review.availability.hasAvailability) }}</strong>
+            <p>{{ detail()!.review.availability.conflictReason || 'Sin conflicto detectado' }}</p>
+            @if (detail()!.review.availability.conflictResolution) {
+              <p>{{ detail()!.review.availability.conflictResolution }}</p>
+            }
+          </div>
           <div class="actions">
             <button type="button" class="approve" (click)="authorizeRepair()">
               Autorizar reparacion
@@ -105,7 +129,6 @@ import { ProvidersApiService } from '../../services/providers-api.service';
               Autorizar reemplazo
             </button>
           </div>
-          <p class="hint">La API validara procedencia tecnica e inventario antes de autorizar.</p>
         </article>
 
         <article class="panel">
@@ -140,6 +163,7 @@ import { ProvidersApiService } from '../../services/providers-api.service';
      .stack{display:grid;gap:.85rem}label{display:grid;gap:.4rem;color:#334155;font-weight:900;font-size:.86rem}.check{display:flex;gap:.5rem;align-items:center}
      textarea,input,select{border:1px solid #cbd5e1;border-radius:14px;padding:.8rem;background:#f8fafc;color:#0f172a;width:100%;box-sizing:border-box}.split{display:grid;grid-template-columns:1fr 6rem;gap:.6rem}
      button{border:0;border-radius:14px;background:#0f172a;color:#fff;font-weight:900;padding:.78rem 1rem;cursor:pointer}.actions{display:flex;gap:.6rem;flex-wrap:wrap}.approve{background:#16a34a}
+     .summary-box{border:1px solid #e2e8f0;border-radius:16px;background:#f8fafc;padding:1rem;display:grid;gap:.35rem}.summary-box strong{color:#0f172a}.summary-box p{margin:0;color:#334155;line-height:1.45}.summary-box small{color:#64748b;font-weight:800}
      @media(max-width:920px){.grid,dl{grid-template-columns:1fr}}`
   ]
 })
@@ -297,6 +321,28 @@ export class ProviderCaseDetailPage implements OnInit {
     return 'neutral';
   }
 
+  dictamenText(result: number): string {
+    switch (Number(result)) {
+      case ResultadoDictamen.NoProcede:
+        return 'No da visto bueno';
+      case ResultadoDictamen.RequiereRevisionAdicional:
+        return 'Requiere revision adicional';
+      default:
+        return 'Da visto bueno';
+    }
+  }
+
+  availabilityText(value?: boolean | null): string {
+    if (value === true) {
+      return 'Disponibilidad validada';
+    }
+
+    if (value === false) {
+      return 'Sin disponibilidad';
+    }
+
+    return 'Disponibilidad sin evaluar';
+  }
 
   shortId(id?: string | null): string {
     return id ? id.slice(0, 8) : '-';
