@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EmptyState } from '../../../../shared/components/empty-state/empty-state';
 import { Loading } from '../../../../shared/components/loading/loading';
@@ -21,6 +21,18 @@ import { OrdersApiService } from '../../services/orders-api.service';
     } @else if (products().length === 0) {
       <app-empty-state title="Sin productos" description="Este pedido no tiene productos disponibles para solicitud." />
     } @else {
+      <section class="filters">
+        <label class="search">
+          Buscar producto
+          <input #searchInput type="search" placeholder="Nombre o SKU" (input)="setSearch($event)" />
+        </label>
+        <button type="button" (click)="setWarrantyOnly(!warrantyOnly())" [class.active]="warrantyOnly()">Con garantia</button>
+        <button type="button" class="ghost" (click)="clearFilters(searchInput)">Limpiar</button>
+      </section>
+
+      @if (filteredProducts().length === 0) {
+        <app-empty-state title="Sin coincidencias" description="No hay productos que coincidan con los filtros seleccionados." />
+      } @else {
       <app-data-table>
         <table>
           <thead>
@@ -33,7 +45,7 @@ import { OrdersApiService } from '../../services/orders-api.service';
             </tr>
           </thead>
           <tbody>
-            @for (product of products(); track product.id) {
+            @for (product of filteredProducts(); track product.id) {
               <tr>
                 <td>{{ product.name }}</td>
                 <td>{{ product.sku }}</td>
@@ -48,6 +60,7 @@ import { OrdersApiService } from '../../services/orders-api.service';
           </tbody>
         </table>
       </app-data-table>
+      }
     }
 
     @if (eligibility()) {
@@ -61,7 +74,12 @@ import { OrdersApiService } from '../../services/orders-api.service';
     }
   `,
   styles: [
-    `.actions{display:flex;gap:.5rem;flex-wrap:wrap}
+    `.filters{display:flex;gap:.8rem;flex-wrap:wrap;align-items:end;margin-bottom:1.25rem;border:1px solid #e2e8f0;border-radius:24px;background:#fff;padding:1rem;box-shadow:0 10px 28px rgba(15,23,42,.06)}
+     .search{min-width:min(22rem,100%);flex:1}label{display:grid;gap:.35rem;color:#334155;font-size:.78rem;font-weight:900;text-transform:uppercase;letter-spacing:.08em}
+     input{min-height:2.55rem;border:1px solid #cbd5e1;border-radius:14px;background:#f8fafc;color:#0f172a;padding:.65rem .8rem;font-weight:800}
+     .filters button{min-height:2.55rem;border:1px solid #cbd5e1;border-radius:14px;background:#fff;color:#334155;font-weight:900;padding:.65rem 1rem;cursor:pointer}
+     .filters button.active,.filters button:hover{background:#2563eb;border-color:#2563eb;color:#fff}.ghost{background:#f8fafc}
+     .actions{display:flex;gap:.5rem;flex-wrap:wrap}
      button{border:0;border-radius:14px;background:#0f172a;color:#fff;font-weight:900;padding:.65rem .9rem;cursor:pointer}
      .actions button:first-child{background:#2563eb}
      .eligibility{margin-top:1.25rem;border:1px solid #fecaca;background:#fef2f2;color:#991b1b;border-radius:24px;padding:1.25rem;box-shadow:0 10px 28px rgba(15,23,42,.05)}
@@ -76,11 +94,26 @@ export class OrderProductsPage implements OnInit {
   readonly tipoSolicitud = TipoSolicitud;
   readonly loading = signal(true);
   readonly products = signal<Producto[]>([]);
+  readonly searchTerm = signal('');
+  readonly warrantyOnly = signal(false);
   readonly eligibility = signal<EligibilityResult | null>(null);
   readonly selectedProduct = signal<Producto | null>(null);
   readonly selectedType = signal<TipoSolicitud>(TipoSolicitud.Devolucion);
   readonly orderId = this.route.snapshot.paramMap.get('orderId') ?? '';
   readonly typeLabel = requestTypeLabel;
+  readonly filteredProducts = computed(() => {
+    const search = this.searchTerm().trim().toLowerCase();
+    const warrantyOnly = this.warrantyOnly();
+    const today = new Date();
+
+    return this.products().filter((product) => {
+      const text = `${product.name} ${product.sku}`.toLowerCase();
+      const matchesSearch = !search || text.includes(search);
+      const warrantyDate = product.warrantyUntil ? new Date(product.warrantyUntil) : null;
+      const matchesWarranty = !warrantyOnly || (warrantyDate !== null && warrantyDate >= today);
+      return matchesSearch && matchesWarranty;
+    });
+  });
 
   ngOnInit(): void {
     this.ordersApi.getOrderProducts(this.orderId).subscribe({
@@ -112,5 +145,19 @@ export class OrderProductsPage implements OnInit {
         type: this.selectedType()
       }
     });
+  }
+
+  setSearch(event: Event): void {
+    this.searchTerm.set((event.target as HTMLInputElement).value);
+  }
+
+  setWarrantyOnly(value: boolean): void {
+    this.warrantyOnly.set(value);
+  }
+
+  clearFilters(searchInput: HTMLInputElement): void {
+    this.searchTerm.set('');
+    this.warrantyOnly.set(false);
+    searchInput.value = '';
   }
 }

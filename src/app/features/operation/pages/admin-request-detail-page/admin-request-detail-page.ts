@@ -11,7 +11,13 @@ import { OperationRequestDetail } from '../../../../models/operation-request-det
 import { EstadoSolicitud } from '../../../../models/solicitud.model';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { formatFileSize } from '../../../../shared/utils/format-file-size';
-import { requestTypeLabel, solutionLabel, statusLabel } from '../../../../shared/utils/request-labels';
+import {
+  providerAssignmentStatusValue,
+  requestTypeLabel,
+  solutionLabel,
+  statusLabel,
+  statusValue
+} from '../../../../shared/utils/request-labels';
 import { OperationApiService } from '../../services/operation-api.service';
 
 @Component({
@@ -249,17 +255,17 @@ export class AdminRequestDetailPage implements OnInit {
   }
 
   canSendToReview(): boolean {
-    const status = this.detail()?.status;
+    const status = statusValue(this.detail()?.status);
     return status === EstadoSolicitud.Creada || status === EstadoSolicitud.PendienteInformacion;
   }
 
   canDecide(): boolean {
-    const status = this.detail()?.status;
+    const status = statusValue(this.detail()?.status);
     return status === EstadoSolicitud.PendienteDecisionFinalAdmin || status === EstadoSolicitud.EnRevision;
   }
 
   canRequestInformation(): boolean {
-    const status = this.detail()?.status;
+    const status = statusValue(this.detail()?.status);
     return (
       status === EstadoSolicitud.Creada ||
       status === EstadoSolicitud.EnRevision
@@ -267,7 +273,7 @@ export class AdminRequestDetailPage implements OnInit {
   }
 
   isWaitingProvider(): boolean {
-    return this.detail()?.status === EstadoSolicitud.EnRevisionProveedor;
+    return statusValue(this.detail()?.status) === EstadoSolicitud.EnRevisionProveedor;
   }
 
   sendToReview(): void {
@@ -314,7 +320,7 @@ export class AdminRequestDetailPage implements OnInit {
   }
 
   providerStatusText(status: number): string {
-    switch (Number(status)) {
+    switch (providerAssignmentStatusValue(status)) {
       case 2:
         return 'En evaluacion';
       case 3:

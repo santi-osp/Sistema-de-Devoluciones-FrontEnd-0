@@ -76,7 +76,7 @@ import { RequestsApiService } from '../../services/requests-api.service';
   `,
   styles: [
     `.form-card{max-width:52rem;margin-inline:auto;border:1px solid #e2e8f0;background:#fff;border-radius:28px;padding:1.5rem;display:grid;gap:1rem;box-shadow:0 14px 40px rgba(15,23,42,.06)}
-     label{display:grid;gap:.45rem;color:#334155;font-weight:900}input,select,textarea{border:1px solid #cbd5e1;border-radius:14px;padding:.8rem;background:#f8fafc;color:#0f172a}
+     label{display:grid;gap:.45rem;color:#334155;font-weight:900}input,select,textarea{border:1px solid #cbd5e1;border-radius:14px;padding:.8rem;background-color:#f8fafc;color:#0f172a}
      small{color:#dc2626;font-weight:800}.form-alert{border:1px solid #fecaca;border-radius:18px;background:#fef2f2;color:#991b1b;padding:.85rem 1rem;font-weight:900}
      textarea{resize:vertical}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}
      button{justify-self:start;border:0;border-radius:14px;background:#2563eb;color:#fff;font-weight:900;padding:.85rem 1.1rem;cursor:pointer;box-shadow:0 12px 28px rgba(37,99,235,.18)}

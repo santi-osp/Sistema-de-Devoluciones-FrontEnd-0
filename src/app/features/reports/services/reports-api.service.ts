@@ -50,7 +50,7 @@ export class ReportsApiService {
 
     return this.http
       .get(`${this.baseUrl}/${reportId}/export`, {
-        params: { format: formatValue },
+        params: { format: String(formatValue) },
         responseType: 'blob',
         observe: 'response'
       })
@@ -72,8 +72,13 @@ export class ReportsApiService {
         const link = document.createElement('a');
         link.href = url;
         link.download = file.fileName;
+        link.style.display = 'none';
+        document.body.appendChild(link);
         link.click();
-        URL.revokeObjectURL(url);
+        window.setTimeout(() => {
+          URL.revokeObjectURL(url);
+          link.remove();
+        }, 0);
         return file;
       })
     );

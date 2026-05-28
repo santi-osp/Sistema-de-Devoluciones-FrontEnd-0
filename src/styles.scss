@@ -58,3 +58,50 @@ button:disabled {
   cursor: not-allowed;
   box-shadow: none;
 }
+
+.private-layout select,
+.app-shell select {
+  min-height: 42px;
+  appearance: none;
+  border: 1px solid #cbd5e1;
+  border-radius: 14px;
+  background-color: #f8fafc;
+  background-image:
+    linear-gradient(45deg, transparent 50%, #475569 50%),
+    linear-gradient(135deg, #475569 50%, transparent 50%);
+  background-position:
+    calc(100% - 18px) 50%,
+    calc(100% - 12px) 50%;
+  background-size:
+    6px 6px,
+    6px 6px;
+  background-repeat: no-repeat;
+  color: #0f172a;
+  padding: 10px 42px 10px 14px;
+  font-weight: 800;
+  line-height: 1.2;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 140ms ease, box-shadow 140ms ease, background-color 140ms ease;
+}
+
+.private-layout select:hover,
+.app-shell select:hover {
+  border-color: #94a3b8;
+  background-color: #ffffff;
+}
+
+.private-layout select:focus,
+.app-shell select:focus {
+  border-color: #2563eb;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, .12);
+}
+
+.private-layout select option,
+.app-shell select option {
+  background: #ffffff;
+  color: #0f172a;
+  font-weight: 700;
+  padding: 10px 14px;
+}

@@ -11,6 +11,7 @@ import { Loading } from '../../../../shared/components/loading/loading';
 import { PageHeader } from '../../../../shared/components/page-header/page-header';
 import { StatusBadge } from '../../../../shared/components/status-badge/status-badge';
 import {
+  providerAssignmentStatusValue,
   requestTypeLabel,
   solutionLabel,
   statusLabel
@@ -161,7 +162,7 @@ import { ProvidersApiService } from '../../services/providers-api.service';
      .headline{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem}.headline span,.hint{color:#64748b;font-weight:800}.hint{margin:.8rem 0 0;line-height:1.5}
      h2{margin:0 0 1rem;color:#0f172a;font-size:1.15rem;font-weight:900}dl{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem}dt{color:#64748b;font-weight:900;font-size:.78rem;text-transform:uppercase;letter-spacing:.08em}dd{margin:.2rem 0 0;color:#0f172a;word-break:break-word;font-weight:700}
      .stack{display:grid;gap:.85rem}label{display:grid;gap:.4rem;color:#334155;font-weight:900;font-size:.86rem}.check{display:flex;gap:.5rem;align-items:center}
-     textarea,input,select{border:1px solid #cbd5e1;border-radius:14px;padding:.8rem;background:#f8fafc;color:#0f172a;width:100%;box-sizing:border-box}.split{display:grid;grid-template-columns:1fr 6rem;gap:.6rem}
+     textarea,input,select{border:1px solid #cbd5e1;border-radius:14px;padding:.8rem;background-color:#f8fafc;color:#0f172a;width:100%;box-sizing:border-box}.split{display:grid;grid-template-columns:1fr 6rem;gap:.6rem}
      button{border:0;border-radius:14px;background:#0f172a;color:#fff;font-weight:900;padding:.78rem 1rem;cursor:pointer}.actions{display:flex;gap:.6rem;flex-wrap:wrap}.approve{background:#16a34a}
      .summary-box{border:1px solid #e2e8f0;border-radius:16px;background:#f8fafc;padding:1rem;display:grid;gap:.35rem}.summary-box strong{color:#0f172a}.summary-box p{margin:0;color:#334155;line-height:1.45}.summary-box small{color:#64748b;font-weight:800}
      @media(max-width:920px){.grid,dl{grid-template-columns:1fr}}`
@@ -293,7 +294,7 @@ export class ProviderCaseDetailPage implements OnInit {
   }
 
   providerStatusText(status: number): string {
-    switch (Number(status)) {
+    switch (providerAssignmentStatusValue(status)) {
       case 2:
         return 'En evaluacion';
       case 3:
@@ -308,13 +309,14 @@ export class ProviderCaseDetailPage implements OnInit {
   }
 
   providerTone(status: number): 'neutral' | 'ok' | 'warn' | 'danger' {
-    if (Number(status) === 4) {
+    const value = providerAssignmentStatusValue(status);
+    if (value === 4) {
       return 'ok';
     }
-    if (Number(status) === 3) {
+    if (value === 3) {
       return 'warn';
     }
-    if (Number(status) === 5) {
+    if (value === 5) {
       return 'danger';
     }
 
